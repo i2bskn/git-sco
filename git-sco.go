@@ -1,11 +1,16 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 )
+
+const delimiter = "/"
+
+var inFeatureNamespace = flag.Bool("f", false, "Omit the feature namespace")
 
 func IsInsideWorkTree() bool {
 	err := exec.Command("git", "rev-parse", "--is-inside-work-tree").Run()
@@ -50,8 +55,8 @@ func RemoteBranches() (map[string][]string, error) {
 }
 
 func splitRemoteName(line string) (string, string) {
-	elements := strings.Split(lineTrim(line), "/")
-	return elements[0], strings.Join(elements[1:], "/")
+	elements := strings.Split(lineTrim(line), delimiter)
+	return elements[0], strings.Join(elements[1:], delimiter)
 }
 
 func lineTrim(line string) string {
@@ -59,6 +64,8 @@ func lineTrim(line string) string {
 }
 
 func main() {
+	flag.Parse()
+
 	var err error
 
 	if len(os.Args) != 2 {
@@ -72,6 +79,9 @@ func main() {
 	}
 
 	branchName := os.Args[1]
+	if *inFeatureNamespace {
+		branchName = strings.Join([]string{"feature", branchName}, delimiter)
+	}
 
 	var localBranches []string
 	localBranches, err = LocalBranches()
@@ -120,7 +130,7 @@ func main() {
 
 	var checkout *exec.Cmd
 	if len(remoteName) != 0 {
-		remoteBranchName := strings.Join([]string{remoteName, branchName}, "/")
+		remoteBranchName := strings.Join([]string{remoteName, branchName}, delimiter)
 		checkout = exec.Command("git", "checkout", "-b", branchName, remoteBranchName)
 	} else {
 		checkout = exec.Command("git", "checkout", "-b", branchName)
