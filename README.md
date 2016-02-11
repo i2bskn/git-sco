@@ -1,1 +1,2 @@
-# git-rco
+Git sloppy checkout
+===================
