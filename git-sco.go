@@ -68,7 +68,7 @@ func main() {
 
 	var err error
 
-	if len(os.Args) != 2 {
+	if len(flag.Args()) != 1 {
 		fmt.Printf("%s <branch>\n", os.Args[0])
 		os.Exit(1)
 	}
@@ -78,7 +78,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	branchName := os.Args[1]
+	branchName := flag.Args()[0]
 	if *inFeatureNamespace {
 		branchName = strings.Join([]string{"feature", branchName}, delimiter)
 	}
